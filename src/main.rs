@@ -1,3 +1,4 @@
+//use std::cell::Cell;
 
 struct MinHeap<T> {
 	data:  Vec::<Box<T>>,
@@ -39,9 +40,9 @@ impl<T: std::cmp::PartialOrd> MinHeap<T> {
 
 	fn swap_with_parent(&mut self, index: usize) {
 		let parent_index = MinHeap::<T>::get_parent_index(index).unwrap();
-		let saved =  self.data[parent_index];
+		let saved =  &self.data[parent_index];
 		self.data[parent_index] = self.data[index];
-		self.data[index] = saved;
+		self.data[index] = saved.clone();
 	}
 
 	fn heapifyUp(&mut self, index : usize) {
