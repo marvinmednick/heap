@@ -1,5 +1,4 @@
 
-
 struct MinHeap<T> {
 	data:  Vec::<Box<T>>,
 }
