@@ -18,6 +18,29 @@ impl<T: std::cmp::PartialOrd+std::fmt::Debug> MinHeap<T> {
 		println!("After insert {:?}",self.data);
 	}
 
+	pub fn update(&mut self, index: usize, new_value: T) {
+		if self.valid_index(index) {
+			if new_value < *self.data[index] {
+					let new_entry = Box::<T>::new(new_value); 
+					self.data[index] = new_entry;
+					self.heapify_up(index);
+			}
+			else if new_value > *self.data[index] {
+					let new_entry = Box::<T>::new(new_value); 
+					self.data[index] = new_entry;
+					self.heapify_down(index);
+			} 
+			// must be equal, so no heap adjust required
+			else {
+					let new_entry = Box::<T>::new(new_value); 
+					self.data[index] = new_entry;
+			}
+
+		}
+		println!("After update {:?}",self.data);
+		
+	}
+
 	pub fn get_min(&mut self) -> T {
 		let retval = *self.data.swap_remove(0);
 		self.heapify_down(0);
@@ -160,11 +183,15 @@ fn main() {
 	v.insert(5);
 	v.insert(1);
 	v.insert(3);
+	v.update(2,11);
+	v.update(3,2);
+	v.update(1,2);
+
 
 	assert_eq!(v.get_min(),1);
+	assert_eq!(v.get_min(),2);
 	assert_eq!(v.get_min(),3);
-	assert_eq!(v.get_min(),5);
-	assert_eq!(v.get_min(),10);
+	assert_eq!(v.get_min(),11);
 
 	#[derive(Debug,PartialEq, PartialOrd)]
 	struct Person {
