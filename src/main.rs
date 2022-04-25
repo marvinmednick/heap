@@ -11,7 +11,13 @@ impl<T: std::cmp::PartialOrd+std::fmt::Debug> MinHeap<T> {
 		MinHeap { data : Vec::<Box<T>>::new() }
 	}
 
+	pub fn set(&mut self, vec: Vec::<Box<T>>) {
+        self.data = vec;
+		println!("After set {:?}",self.data);
+	}
+
 	pub fn insert(&mut self, item: T ) {
+    //    println!("Inserting {:?} ****** ",item);
 		let entry = Box::<T>::new(item);
 		self.data.push(entry);	
 		self.heapify_up(self.data.len()-1);
@@ -40,6 +46,23 @@ impl<T: std::cmp::PartialOrd+std::fmt::Debug> MinHeap<T> {
 		println!("After update {:?}",self.data);
 		
 	}
+
+    pub fn validate_heap(&self) -> bool {
+
+        for x in (0..self.data.len()) {
+            let left = self.get_left_child_index(x);
+            let right = self.get_right_child_index(x);
+            let left_valid = left.is_none() || *self.data[left.unwrap()] >= *self.data[x];
+            let right_valid = right.is_none() || *self.data[right.unwrap()] >= *self.data[x];
+           // println!("Item {} -> left: {:?} right:  {:?} valid: {} {}",x,left,right,left_valid,left_valid);
+            if !left_valid || !right_valid {
+                println!("INVALID heap");
+                return false;
+            }
+        }
+        println!("Valid heap");
+        return true;
+    }
 
 	pub fn get_min(&mut self) -> T {
 		let retval = *self.data.swap_remove(0);
@@ -104,14 +127,17 @@ impl<T: std::cmp::PartialOrd+std::fmt::Debug> MinHeap<T> {
 	}
 
 	fn less_than_parent(&mut self, current_index: usize) -> bool {
+        let retval : bool;
 		if self.has_parent(current_index) {
 			let parent_index = self.get_parent_index(current_index).unwrap();
 			// is current value < parent value
-			*self.data[current_index] < *self.data[parent_index]
+			retval = *self.data[current_index] < *self.data[parent_index];
 		}
 		else {
-			false
+			retval = false;
 		}
+       // println!("idx: {} Less than parent {}", current_index, retval);
+        retval
 	}
 
 	fn get_smallest_child_index(&self, index: usize) -> Option<usize> {
@@ -143,8 +169,11 @@ impl<T: std::cmp::PartialOrd+std::fmt::Debug> MinHeap<T> {
 	}
 
 	fn heapify_up(&mut self, index : usize) {
-			while self.less_than_parent(index) {
-				self.swap_with_parent(index);
+            let mut working_index = index.clone();
+			while self.less_than_parent(working_index) {
+                let new_working_index = self.get_parent_index(working_index).unwrap();
+				self.swap_with_parent(working_index);
+                working_index = new_working_index;
 			}
 	}
 
@@ -193,22 +222,53 @@ fn main() {
 	assert_eq!(v.get_min(),3);
 	assert_eq!(v.get_min(),11);
 
-	#[derive(Debug,PartialEq, PartialOrd)]
+	//#[derive(Debug,PartialOrd,PartialEq)]
+	#[derive(Debug)]
 	struct Person {
 		rank: u32,
-		name: String,
 		age: u32,
+		name: String,
 	}
 
+    use std::cmp::Ordering;
+
+    impl PartialOrd for Person {
+        fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
+            self.age.partial_cmp(&other.age)
+        }
+    }
+
+    impl PartialEq for Person {
+        fn eq(&self, other: &Self) -> bool {
+            self.age == other.age
+        }
+    }
+
+
+	let mut v = MinHeap::<u32>::new();
+	v.insert(61);
+	v.insert(60);
+	v.insert(50);
+	v.insert(10);
+	v.insert(18);
+	v.insert(40);
+    v.validate_heap();
+
 	let mut v = MinHeap::<Person>::new();
-	v.insert(Person { name: "Marvin".to_string(), age:61, rank: 1});
-	v.insert(Person { name: "Marvin".to_string(), age:60, rank: 2});
-	v.insert(Person { name: "Marcia".to_string(), age:50, rank: 2});
-	v.insert(Person { name: "Jordana".to_string(), age:10, rank: 3});
-	v.insert(Person { name: "Gizmo".to_string(), age:18, rank:4 });
+	v.insert(Person { name: "Marvin".to_string(), age:61,  rank: 1});
+	v.insert(Person { name: "Marvin".to_string(), age:60,  rank: 2});
+	v.insert(Person { name: "Marcia".to_string(), age:50,  rank: 2});
+	v.insert(Person { name: "Jordana".to_string(), age:10,  rank: 3});
+	v.insert(Person { name: "Gizmo".to_string(), age:18,  rank:4 });
+    v.validate_heap();
 	v.get_min();
 	v.get_min();
 	v.get_min();
 	
+	let mut v = MinHeap::<u32>::new();
+    v.set(vec!(Box::new(1),Box::new(3),Box::new(2)));
+    v.validate_heap();
+    v.set(vec!(Box::new(3),Box::new(2),Box::new(1)));
+    v.validate_heap();
 }
 
