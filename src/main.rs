@@ -1,5 +1,5 @@
 mod minheap;
-use crate::minheap::minheap::MinHeap;
+use crate::minheap::MinHeap;
 
 fn main() {
     println!("Hello, world!");
@@ -23,7 +23,7 @@ mod tests {
 
     #[test]
     fn test1() {
-        use crate::minheap::minheap::MinHeap;
+        use crate::minheap::MinHeap;
 
         let mut v = MinHeap::<u32>::new();
         v.insert(61);
@@ -37,7 +37,7 @@ mod tests {
 
     #[test]
     fn test2() {
-        use crate::minheap::minheap::MinHeap;
+        use crate::minheap::MinHeap;
         //#[derive(Debug,PartialOrd,PartialEq)]
         #[derive(Debug)]
         struct Person {
@@ -75,7 +75,7 @@ mod tests {
 
     #[test]
     fn test3() {
-        use crate::minheap::minheap::MinHeap;
+        use crate::minheap::MinHeap;
 
         let mut v = MinHeap::<u32>::new();
         v.insert(10);
@@ -97,7 +97,7 @@ mod tests {
     #[test]
     fn test4() {
 
-        use crate::minheap::minheap::MinHeap;
+        use crate::minheap::MinHeap;
         let mut v = MinHeap::<u32>::new();
         v.set(vec!(Box::new(1),Box::new(3),Box::new(2)));
         v.validate_heap();
