@@ -24,12 +24,23 @@ impl<T: std::cmp::PartialOrd+std::fmt::Debug> MinHeap<T> {
 
     }
 
-/*
-    pub fn set(&mut self, vec: Vec::<Box<T>>) {
-        self.heap_contents = vec;
-        //println!("After set {:?}",self.heap_contents);
+
+    pub fn set(&mut self, mut vec: Vec::<Box<T>>) {
+        let mut new_heapvec = Vec::<HeapDataItem<T>>::new();
+        let mut next_id = 0;
+        for i in 0..vec.len() {
+            let item = vec.remove(0);
+            let new_item = HeapDataItem {id: next_id, data: item};
+            println!("Adding {:?}",new_item);
+            new_heapvec.push(new_item);
+            next_id += 1
+        }
+            
+        self.heap_contents = new_heapvec;
+        println!("After set Contents {:?}",self.heap_contents);
+        println!("After set Index {:?}",self.index_by_id);
     }
-    */
+    
 
     pub fn insert(&mut self, item: T ) {
     //    println!("Inserting {:?} ****** ",item);
@@ -85,7 +96,13 @@ impl<T: std::cmp::PartialOrd+std::fmt::Debug> MinHeap<T> {
             let right = self.get_right_child_index(x);
             let left_valid = left.is_none() || *self.heap_contents[left.unwrap()].data >= *self.heap_contents[x].data;
             let right_valid = right.is_none() || *self.heap_contents[right.unwrap()].data >= *self.heap_contents[x].data;
-           // println!("Item {} -> left: {:?} right:  {:?} valid: {} {}",x,left,right,left_valid,left_valid);
+            println!("Item {} -> left: {:?} right:  {:?} valid: {} {}",x,left,right,left_valid,left_valid);
+            if !left_valid {
+                    println!("Left invalid")
+            }
+            if !right_valid {
+                    println!("Right invalid")
+            }
             if !left_valid || !right_valid {
                 println!("INVALID heap");
                 return false;
@@ -327,19 +344,31 @@ mod minheap_tests {
 
     }
 
-/*
+
     #[test]
     fn test4() {
 
         use crate::minheap::MinHeap;
         let mut v = MinHeap::<u32>::new();
         v.set(vec!(Box::new(1),Box::new(3),Box::new(2)));
-        v.validate_heap();
+        assert!(v.validate_heap());
         v.set(vec!(Box::new(3),Box::new(2),Box::new(1)));
-        v.validate_heap();
+        assert!(!v.validate_heap());
+        v.set(vec!(Box::new(1),Box::new(5),Box::new(10),Box::new(3)));
+        assert!(!v.validate_heap());
+        v.set(vec!(Box::new(1),Box::new(5),Box::new(10),Box::new(7),Box::new(4)));
+        assert!(!v.validate_heap());
+        v.set(vec!(Box::new(1),Box::new(5),Box::new(10),Box::new(7),Box::new(11)));
+        assert!(v.validate_heap());
+        v.set(vec!(Box::new(1),Box::new(5),Box::new(10),Box::new(7),Box::new(11),Box::new(9)));
+        assert!(!v.validate_heap());
+        v.set(vec!(Box::new(1),Box::new(5),Box::new(10),Box::new(7),Box::new(11),Box::new(12),Box::new(6)));
+        assert!(!v.validate_heap());
+        v.set(vec!(Box::new(1),Box::new(5),Box::new(10),Box::new(7),Box::new(11),Box::new(12),Box::new(16)));
+        assert!(v.validate_heap());
 
     }
-*/
+
 
 
 
