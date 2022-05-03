@@ -94,18 +94,6 @@ mod tests {
 
     }
 
-    #[test]
-    fn test4() {
-
-        use crate::minheap::MinHeap;
-        let mut v = MinHeap::<u32>::new();
-        v.set(vec!(Box::new(1),Box::new(3),Box::new(2)));
-        v.validate_heap();
-        v.set(vec!(Box::new(3),Box::new(2),Box::new(1)));
-        v.validate_heap();
-
-    }
-
 
 
 }

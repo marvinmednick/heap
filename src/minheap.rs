@@ -1,57 +1,90 @@
+use std::collections::HashMap;
+
+#[derive(Debug)]
+pub struct HeapDataItem<T> {
+    id:    u32,
+    data: Box<T>
+}
+
 pub struct MinHeap<T> {
-    data:  Vec::<Box<T>>,
+    heap_contents:  Vec::<HeapDataItem<T>>,
+    index_by_id:   HashMap::<u32,usize>,
+    next_id: u32,
 }
 
 
 impl<T: std::cmp::PartialOrd+std::fmt::Debug> MinHeap<T> {
 
     pub fn new()  -> MinHeap<T> {
-        MinHeap { data : Vec::<Box<T>>::new() }
+        MinHeap { 
+            heap_contents : Vec::<HeapDataItem<T>>::new(), 
+            index_by_id:  HashMap::<u32,usize>::new(),
+            next_id:  0
+        }
+
     }
 
+/*
     pub fn set(&mut self, vec: Vec::<Box<T>>) {
-        self.data = vec;
-        println!("After set {:?}",self.data);
+        self.heap_contents = vec;
+        //println!("After set {:?}",self.heap_contents);
     }
+    */
 
     pub fn insert(&mut self, item: T ) {
     //    println!("Inserting {:?} ****** ",item);
-        let entry = Box::<T>::new(item);
-        self.data.push(entry);	
-        self.heapify_up(self.data.len()-1);
-        println!("After insert {:?}",self.data);
+        let entry = HeapDataItem { id: self.next_id, data: Box::<T>::new(item)};
+        // add the entry
+        self.heap_contents.push(entry);	
+        // update the index by id so there is a mapping from id to its current 
+        // locatio withing the heap
+        self.index_by_id.insert(self.next_id,self.heap_contents.len()-1);
+        // update the next_id for the next insert
+        self.next_id += 1;
+        // fix up the heap
+        self.heapify_up(self.heap_contents.len()-1);
+        println!("After insert {:?}",self.heap_contents);
+    }
+
+    fn replace(&mut self,index: usize, new_value: T) {
+            let new_entry = HeapDataItem { id: self.next_id, data: Box::<T>::new(new_value)}; 
+            self.next_id += 1;
+            let old_id = self.heap_contents[index].id.clone();
+            // remove the entry in the index_by_id map
+            self.index_by_id.remove(&old_id);
+            // setup the index first, before its moved to the heap
+            self.index_by_id.insert(new_entry.id,index.clone());
+            self.heap_contents[index] = new_entry;
     }
 
     pub fn update(&mut self, index: usize, new_value: T) {
         if self.valid_index(index) {
-            if new_value < *self.data[index] {
-                    let new_entry = Box::<T>::new(new_value); 
-                    self.data[index] = new_entry;
+
+            if new_value < *self.heap_contents[index].data {
+                    self.replace(index,new_value);
                     self.heapify_up(index);
             }
-            else if new_value > *self.data[index] {
-                    let new_entry = Box::<T>::new(new_value); 
-                    self.data[index] = new_entry;
+            else if new_value > *self.heap_contents[index].data {
+                    self.replace(index,new_value);
                     self.heapify_down(index);
             } 
-            // must be equal, so no heap adjust required
+            // values are be equal, so no heap adjust required
             else {
-                    let new_entry = Box::<T>::new(new_value); 
-                    self.data[index] = new_entry;
+                    self.replace(index,new_value);
             }
 
         }
-        println!("After update {:?}",self.data);
+        println!("After update {:?}",self.heap_contents);
         
     }
 
     pub fn validate_heap(&self) -> bool {
 
-        for x in 0..self.data.len() {
+        for x in 0..self.heap_contents.len() {
             let left = self.get_left_child_index(x);
             let right = self.get_right_child_index(x);
-            let left_valid = left.is_none() || *self.data[left.unwrap()] >= *self.data[x];
-            let right_valid = right.is_none() || *self.data[right.unwrap()] >= *self.data[x];
+            let left_valid = left.is_none() || *self.heap_contents[left.unwrap()].data >= *self.heap_contents[x].data;
+            let right_valid = right.is_none() || *self.heap_contents[right.unwrap()].data >= *self.heap_contents[x].data;
            // println!("Item {} -> left: {:?} right:  {:?} valid: {} {}",x,left,right,left_valid,left_valid);
             if !left_valid || !right_valid {
                 println!("INVALID heap");
@@ -63,10 +96,14 @@ impl<T: std::cmp::PartialOrd+std::fmt::Debug> MinHeap<T> {
     }
 
     pub fn get_min(&mut self) -> T {
-        let retval = *self.data.swap_remove(0);
+        // remove the entry from the heap
+        let retval = self.heap_contents.swap_remove(0);
+        // remove the entry in the index_by_id map
+        self.index_by_id.remove(&retval.id);
+        // fix up the heap
         self.heapify_down(0);
-        println!("After get_min {:?}",self.data);
-        retval
+        println!("After get_min {:?}",self.heap_contents);
+        *retval.data
     }
 
     fn get_parent_index(&self, index: usize) -> Option<usize> {
@@ -80,7 +117,7 @@ impl<T: std::cmp::PartialOrd+std::fmt::Debug> MinHeap<T> {
 
     fn get_left_child_index(&self, index: usize) -> Option<usize> {
             let child_index = index*2+1;
-            if child_index < self.data.len() {
+            if child_index < self.heap_contents.len() {
                 Some(child_index)
             }
             else {
@@ -90,7 +127,7 @@ impl<T: std::cmp::PartialOrd+std::fmt::Debug> MinHeap<T> {
 
     fn get_right_child_index(&self, index: usize) -> Option<usize> {
             let child_index = index*2+2;
-            if child_index < self.data.len() {
+            if child_index < self.heap_contents.len() {
                 Some(child_index)
             }
             else {
@@ -100,7 +137,7 @@ impl<T: std::cmp::PartialOrd+std::fmt::Debug> MinHeap<T> {
 
     fn valid_index(&self, index: usize) -> bool {
         
-        if index < self.data.len() {
+        if index < self.heap_contents.len() {
             true
         }
         else {
@@ -115,7 +152,7 @@ impl<T: std::cmp::PartialOrd+std::fmt::Debug> MinHeap<T> {
 
     fn less_than(&self, a: usize, b: usize) -> bool {
         if self.valid_index(a) && self.valid_index(b) {
-            let return_value =	*self.data[a] < *self.data[b];
+            let return_value =	*self.heap_contents[a].data < *self.heap_contents[b].data;
             return_value
         }
         else {
@@ -129,7 +166,7 @@ impl<T: std::cmp::PartialOrd+std::fmt::Debug> MinHeap<T> {
         if self.has_parent(current_index) {
             let parent_index = self.get_parent_index(current_index).unwrap();
             // is current value < parent value
-            retval = *self.data[current_index] < *self.data[parent_index];
+            retval = *self.heap_contents[current_index].data < *self.heap_contents[parent_index].data;
         }
         else {
             retval = false;
@@ -151,7 +188,7 @@ impl<T: std::cmp::PartialOrd+std::fmt::Debug> MinHeap<T> {
             left_index
         }
         else {
-            if *self.data[left_index.unwrap()] <= *self.data[right_index.unwrap()] {
+            if *self.heap_contents[left_index.unwrap()].data <= *self.heap_contents[right_index.unwrap()].data {
                 left_index
             }
             else {
@@ -161,9 +198,13 @@ impl<T: std::cmp::PartialOrd+std::fmt::Debug> MinHeap<T> {
 
     }
 
-    fn swap_with_parent(&mut self, index: usize) {
-        let parent_index = self.get_parent_index(index).unwrap();
-        self.data.swap(index,parent_index);
+    fn swap_with_parent(&mut self, cur_index: usize) {
+        let parent_index = self.get_parent_index(cur_index).unwrap();
+        let parent_id = self.heap_contents[parent_index].id.clone();
+        let current_id = self.heap_contents[cur_index].id.clone();
+        self.heap_contents.swap(cur_index,parent_index);
+        self.index_by_id.insert(parent_id,cur_index);
+        self.index_by_id.insert(current_id,parent_index);
     }
 
     fn heapify_up(&mut self, index : usize) {
@@ -186,8 +227,16 @@ impl<T: std::cmp::PartialOrd+std::fmt::Debug> MinHeap<T> {
             // compare the smallest child value with the current value
             // if the child is smaller, swap with it and proceed down the tree
             if self.less_than(smallest_child_index,cur_index) {
-                self.data.swap(cur_index,smallest_child_index);
+                let child_id = self.heap_contents[smallest_child_index].id.clone();
+                let current_id = self.heap_contents[cur_index].id.clone();
+                self.heap_contents.swap(cur_index,smallest_child_index);
+
+                // update the mapping from id to index to reflectx the new indexes
+                self.index_by_id.insert(current_id,smallest_child_index.clone());
+                self.index_by_id.insert(child_id,cur_index.clone());
+
                 // after the swap, the current nodw will be where the child was
+                // so continue the loop from there
                 cur_index = smallest_child_index;
             }
             else {
@@ -278,6 +327,7 @@ mod minheap_tests {
 
     }
 
+/*
     #[test]
     fn test4() {
 
@@ -289,6 +339,7 @@ mod minheap_tests {
         v.validate_heap();
 
     }
+*/
 
 
 
