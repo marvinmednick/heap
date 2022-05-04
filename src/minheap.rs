@@ -51,6 +51,7 @@ impl<T: std::cmp::PartialOrd+std::fmt::Debug> MinHeap<T> {
         // fix up the heap
         self.heapify_up(self.heap_contents.len()-1);
         println!("After insert {:?}",self.heap_contents);
+        println!("After insert Index {:?}",self.index_by_id);
     }
 
     fn replace(&mut self,index: usize, new_value: T) {
