@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct HeapDataItem<T> {
     id:    u32,
     data: Box<T>
@@ -52,6 +52,25 @@ impl<T: std::cmp::PartialOrd+std::fmt::Debug> MinHeap<T> {
         self.heapify_up(self.heap_contents.len()-1);
         println!("After insert {:?}",self.heap_contents);
         println!("After insert Index {:?}",self.index_by_id);
+    }
+
+    pub fn get_id_index(&self,id:u32) -> Option<&usize>{
+        self.index_by_id.get(&id)
+    }
+
+    pub fn peek_id_data(&self,id:u32) -> Option<T>
+    where T: Clone
+    {
+        
+        if let Some(index) = self.index_by_id.get(&id) {
+            let item = self.heap_contents.get(*index).clone();
+            println!("get id data id {} data {:?} ",id,item);
+            let x = item.unwrap().data.clone();
+            Some(*x)
+        }
+        else {
+            None
+        }
     }
 
     fn replace(&mut self,index: usize, new_value: T) {
@@ -338,7 +357,7 @@ mod minheap_tests {
 
 
     #[test]
-    fn test4() {
+    fn test_heap_validate() {
 
         use crate::minheap::MinHeap;
         let mut v = MinHeap::<u32>::new();
@@ -362,6 +381,47 @@ mod minheap_tests {
     }
 
 
+    #[test]
+    fn test_ids() {
+        use crate::minheap::MinHeap;
+
+        let mut v = MinHeap::<u32>::new();
+        v.insert(1,61);
+        assert_eq!(v.peek_id_data(1),Some(61));
+        assert_eq!(v.get_id_index(1),Some(&0));
+        v.insert(2,60);
+        assert_eq!(v.get_id_index(1),Some(&1));
+        assert_eq!(v.get_id_index(2),Some(&0));
+        assert_eq!(Some(61),v.peek_id_data(1));
+        assert_eq!(v.peek_id_data(2),Some(60));
+        v.insert(3,50);
+        assert_eq!(v.get_id_index(3),Some(&0));
+        v.insert(4,10);
+        assert_eq!(v.get_id_index(4),Some(&0));
+        v.insert(5,18);
+        v.insert(6,40);
+        assert!(v.validate_heap());
+        assert_eq!(v.peek_id_data(1),Some(61));
+        assert_eq!(v.peek_id_data(2),Some(60));
+        assert_eq!(v.peek_id_data(3),Some(50));
+        assert_eq!(v.peek_id_data(4),Some(10));
+        assert_eq!(v.peek_id_data(5),Some(18));
+        assert_eq!(v.get_min(),10);
+        assert_eq!(v.peek_id_data(4),None);
+        assert_eq!(v.peek_id_data(1),Some(61));
+        assert_eq!(v.peek_id_data(2),Some(60));
+        assert_eq!(v.peek_id_data(5),Some(18));
+        assert_eq!(v.peek_id_data(6),Some(40));
+        assert_eq!(v.get_min(),18);
+        assert_eq!(v.peek_id_data(1),Some(61));
+        assert_eq!(v.peek_id_data(2),Some(60));
+        assert_eq!(v.peek_id_data(3),Some(50));
+        assert_eq!(v.peek_id_data(4),None);
+        assert_eq!(v.peek_id_data(5),None);
+        assert_eq!(v.get_id_index(6),Some(&0));
+        assert!(v.validate_heap());
+
+    } 
 
 
 }
