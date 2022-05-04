@@ -6,12 +6,12 @@ fn main() {
 
 
     let mut v = MinHeap::<u32>::new();
-    v.insert(61);
-    v.insert(60);
-    v.insert(50);
-    v.insert(10);
-    v.insert(18);
-    v.insert(40);
+    v.insert(1,61);
+    v.insert(2,60);
+    v.insert(3,50);
+    v.insert(4,10);
+    v.insert(5,18);
+    v.insert(6,40);
 
     assert!(v.validate_heap())
 
@@ -26,12 +26,12 @@ mod tests {
         use crate::minheap::MinHeap;
 
         let mut v = MinHeap::<u32>::new();
-        v.insert(61);
-        v.insert(60);
-        v.insert(50);
-        v.insert(10);
-        v.insert(18);
-        v.insert(40);
+        v.insert(100,61);
+        v.insert(200,60);
+        v.insert(300,50);
+        v.insert(400,10);
+        v.insert(500,18);
+        v.insert(600,40);
         assert!(v.validate_heap())
     } 
 
@@ -61,11 +61,11 @@ mod tests {
         }
 
         let mut v = MinHeap::<Person>::new();
-        v.insert(Person { name: "Marvin".to_string(), age:61,  rank: 1});
-        v.insert(Person { name: "Marvin".to_string(), age:60,  rank: 2});
-        v.insert(Person { name: "Marcia".to_string(), age:50,  rank: 2});
-        v.insert(Person { name: "Jordana".to_string(), age:10,  rank: 3});
-        v.insert(Person { name: "Gizmo".to_string(), age:18,  rank:4 });
+        v.insert(10,Person { name: "Marvin".to_string(), age:61,  rank: 1});
+        v.insert(20,Person { name: "Marvin".to_string(), age:60,  rank: 2});
+        v.insert(30,Person { name: "Marcia".to_string(), age:50,  rank: 2});
+        v.insert(40,Person { name: "Jordana".to_string(), age:10,  rank: 3});
+        v.insert(50,Person { name: "Gizmo".to_string(), age:18,  rank:4 });
         assert!(v.validate_heap());
         assert_eq!(v.get_min().age,10);
         assert_eq!(v.get_min().age,18);
@@ -78,10 +78,10 @@ mod tests {
         use crate::minheap::MinHeap;
 
         let mut v = MinHeap::<u32>::new();
-        v.insert(10);
-        v.insert(5);
-        v.insert(1);
-        v.insert(3);
+        v.insert(1,10);
+        v.insert(2,5);
+        v.insert(3,1);
+        v.insert(4,3);
         v.update(2,11);
         v.update(3,2);
         v.update(1,2);

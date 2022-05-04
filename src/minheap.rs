@@ -9,7 +9,6 @@ pub struct HeapDataItem<T> {
 pub struct MinHeap<T> {
     heap_contents:  Vec::<HeapDataItem<T>>,
     index_by_id:   HashMap::<u32,usize>,
-    next_id: u32,
 }
 
 
@@ -19,7 +18,6 @@ impl<T: std::cmp::PartialOrd+std::fmt::Debug> MinHeap<T> {
         MinHeap { 
             heap_contents : Vec::<HeapDataItem<T>>::new(), 
             index_by_id:  HashMap::<u32,usize>::new(),
-            next_id:  0
         }
 
     }
@@ -28,7 +26,7 @@ impl<T: std::cmp::PartialOrd+std::fmt::Debug> MinHeap<T> {
     pub fn set(&mut self, mut vec: Vec::<Box<T>>) {
         let mut new_heapvec = Vec::<HeapDataItem<T>>::new();
         let mut next_id = 0;
-        for i in 0..vec.len() {
+        for _i in 0..vec.len() {
             let item = vec.remove(0);
             let new_item = HeapDataItem {id: next_id, data: item};
             println!("Adding {:?}",new_item);
@@ -42,29 +40,22 @@ impl<T: std::cmp::PartialOrd+std::fmt::Debug> MinHeap<T> {
     }
     
 
-    pub fn insert(&mut self, item: T ) {
+    pub fn insert(&mut self, item_id: u32, item: T ) {
     //    println!("Inserting {:?} ****** ",item);
-        let entry = HeapDataItem { id: self.next_id, data: Box::<T>::new(item)};
+        let entry = HeapDataItem { id: item_id, data: Box::<T>::new(item)};
         // add the entry
         self.heap_contents.push(entry);	
         // update the index by id so there is a mapping from id to its current 
         // locatio withing the heap
-        self.index_by_id.insert(self.next_id,self.heap_contents.len()-1);
-        // update the next_id for the next insert
-        self.next_id += 1;
+        self.index_by_id.insert(item_id,self.heap_contents.len()-1);
         // fix up the heap
         self.heapify_up(self.heap_contents.len()-1);
         println!("After insert {:?}",self.heap_contents);
     }
 
     fn replace(&mut self,index: usize, new_value: T) {
-            let new_entry = HeapDataItem { id: self.next_id, data: Box::<T>::new(new_value)}; 
-            self.next_id += 1;
             let old_id = self.heap_contents[index].id.clone();
-            // remove the entry in the index_by_id map
-            self.index_by_id.remove(&old_id);
-            // setup the index first, before its moved to the heap
-            self.index_by_id.insert(new_entry.id,index.clone());
+            let new_entry = HeapDataItem { id: old_id, data: Box::<T>::new(new_value)}; 
             self.heap_contents[index] = new_entry;
     }
 
@@ -276,12 +267,12 @@ mod minheap_tests {
         use crate::minheap::MinHeap;
 
         let mut v = MinHeap::<u32>::new();
-        v.insert(61);
-        v.insert(60);
-        v.insert(50);
-        v.insert(10);
-        v.insert(18);
-        v.insert(40);
+        v.insert(1,61);
+        v.insert(2,60);
+        v.insert(3,50);
+        v.insert(4,10);
+        v.insert(5,18);
+        v.insert(6,40);
         assert!(v.validate_heap())
     } 
 
@@ -311,11 +302,11 @@ mod minheap_tests {
         }
 
         let mut v = MinHeap::<Person>::new();
-        v.insert(Person { name: "Marvin".to_string(), age:61,  rank: 1});
-        v.insert(Person { name: "Marvin".to_string(), age:60,  rank: 2});
-        v.insert(Person { name: "Marcia".to_string(), age:50,  rank: 2});
-        v.insert(Person { name: "Jordana".to_string(), age:10,  rank: 3});
-        v.insert(Person { name: "Gizmo".to_string(), age:18,  rank:4 });
+        v.insert(1,Person { name: "Marvin".to_string(), age:61,  rank: 1});
+        v.insert(2,Person { name: "Marvin".to_string(), age:60,  rank: 2});
+        v.insert(3,Person { name: "Marcia".to_string(), age:50,  rank: 2});
+        v.insert(4,Person { name: "Jordana".to_string(), age:10,  rank: 3});
+        v.insert(5,Person { name: "Gizmo".to_string(), age:18,  rank:4 });
         assert!(v.validate_heap());
         assert_eq!(v.get_min().age,10);
         assert_eq!(v.get_min().age,18);
@@ -328,10 +319,10 @@ mod minheap_tests {
         use crate::minheap::MinHeap;
 
         let mut v = MinHeap::<u32>::new();
-        v.insert(10);
-        v.insert(5);
-        v.insert(1);
-        v.insert(3);
+        v.insert(1,10);
+        v.insert(2,5);
+        v.insert(3,1);
+        v.insert(4,3);
         v.update(2,11);
         v.update(3,2);
         v.update(1,2);
