@@ -7,8 +7,8 @@ pub struct HeapDataItem<T> {
 }
 
 pub struct MinHeap<T> {
-    heap_contents:  Vec::<HeapDataItem<T>>,
-    index_by_id:   HashMap::<u32,usize>,
+    pub heap_contents:  Vec::<HeapDataItem<T>>,
+    pub index_by_id:   HashMap::<u32,usize>,
 }
 
 
@@ -52,6 +52,21 @@ impl<T: std::cmp::PartialOrd+std::fmt::Debug> MinHeap<T> {
         self.heapify_up(self.heap_contents.len()-1);
         println!("After insert {:?}",self.heap_contents);
         println!("After insert Index {:?}",self.index_by_id);
+    }
+
+    pub fn delete(&mut self, index : usize) {
+        if self.valid_index(index) {
+            // get the id of the current entry so the index can be reoved
+            let id_to_be_removed = self.heap_contents[index].id.clone();
+            // remove the element and put the last one in its place (which will be larger)
+            self.heap_contents.swap_remove(index);
+            // fix up the heap
+            self.heapify_down(index);
+            // remove the id/index entry from the map
+            self.index_by_id.remove(&id_to_be_removed);
+
+        }
+
     }
 
     pub fn get_id_index(&self,id:u32) -> Option<&usize>{
@@ -281,10 +296,9 @@ impl<T: std::cmp::PartialOrd+std::fmt::Debug> MinHeap<T> {
 
 #[cfg(test)]
 mod minheap_tests {
+    use crate::minheap::MinHeap;
 
-    #[test]
-    fn test1() {
-        use crate::minheap::MinHeap;
+    fn setup_basic() -> MinHeap<u32> {
 
         let mut v = MinHeap::<u32>::new();
         v.insert(1,61);
@@ -293,8 +307,29 @@ mod minheap_tests {
         v.insert(4,10);
         v.insert(5,18);
         v.insert(6,40);
-        assert!(v.validate_heap())
+        v
+
+    }
+
+    #[test]
+    fn test1() {
+
+        let v = setup_basic();
+        assert!(v.validate_heap());
     } 
+
+    #[test]
+    fn test_delete() {
+        let mut v = setup_basic();
+        println!("Before Delete {:?}",v.heap_contents);
+        v.delete(1);
+        assert!(v.validate_heap());
+        println!("After Delete 1 {:?}",v.heap_contents);
+        v.delete(2);
+        println!("After Delete 2 {:?}",v.heap_contents);
+        assert!(v.validate_heap());
+
+    }
 
     #[test]
     fn test2() {
