@@ -155,6 +155,23 @@ impl<T: std::cmp::PartialOrd+std::fmt::Debug> MinHeap<T> {
         }
     }
 
+    pub fn get_min_entry (&mut self) -> Option<(u32,T)> {
+
+        if self.heap_contents.len() > 0 {
+            // remove the entry from the heap
+            let retval = self.heap_contents.swap_remove(0);
+            // remove the entry in the index_by_id map
+            self.index_by_id.remove(&retval.id);
+            // fix up the heap
+            self.heapify_down(0);
+            println!("After get_min {:?}",self.heap_contents);
+            Some((retval.id,*retval.data))
+        }
+        else {
+            None
+        }
+    }
+
     fn get_parent_index(&self, index: usize) -> Option<usize> {
         if index == 0 {
             None
@@ -396,6 +413,12 @@ mod minheap_tests {
 
     }
 
+    #[test]
+    fn test_min_entry() {
+        let mut v = setup_basic();
+        assert_eq!(v.get_min_entry(),Some((4,10)));
+        assert_eq!(v.get_min_entry(),Some((5,18)));
+    }
 
     #[test]
     fn test_heap_validate() {
