@@ -138,15 +138,21 @@ impl<T: std::cmp::PartialOrd+std::fmt::Debug> MinHeap<T> {
         return true;
     }
 
-    pub fn get_min(&mut self) -> T {
-        // remove the entry from the heap
-        let retval = self.heap_contents.swap_remove(0);
-        // remove the entry in the index_by_id map
-        self.index_by_id.remove(&retval.id);
-        // fix up the heap
-        self.heapify_down(0);
-        println!("After get_min {:?}",self.heap_contents);
-        *retval.data
+    pub fn get_min(&mut self) -> Option<T> {
+
+        if self.heap_contents.len() > 0 {
+            // remove the entry from the heap
+            let retval = self.heap_contents.swap_remove(0);
+            // remove the entry in the index_by_id map
+            self.index_by_id.remove(&retval.id);
+            // fix up the heap
+            self.heapify_down(0);
+            println!("After get_min {:?}",self.heap_contents);
+            Some(*retval.data)
+        }
+        else {
+            None
+        }
     }
 
     fn get_parent_index(&self, index: usize) -> Option<usize> {
@@ -363,9 +369,9 @@ mod minheap_tests {
         v.insert(4,Person { name: "Jordana".to_string(), age:10,  rank: 3});
         v.insert(5,Person { name: "Gizmo".to_string(), age:18,  rank:4 });
         assert!(v.validate_heap());
-        assert_eq!(v.get_min().age,10);
-        assert_eq!(v.get_min().age,18);
-        assert_eq!(v.get_min().age,50);
+        assert_eq!(v.get_min().age,Some(10));
+        assert_eq!(v.get_min().age,Some(18));
+        assert_eq!(v.get_min().age,Some(50));
 
     }
 
@@ -383,10 +389,10 @@ mod minheap_tests {
         v.update(1,2);
 
 
-        assert_eq!(v.get_min(),1);
-        assert_eq!(v.get_min(),2);
-        assert_eq!(v.get_min(),3);
-        assert_eq!(v.get_min(),11);
+        assert_eq!(v.get_min(),Some(1));
+        assert_eq!(v.get_min(),Some(2));
+        assert_eq!(v.get_min(),Some(3));
+        assert_eq!(v.get_min(),Some(11));
 
     }
 
@@ -441,13 +447,13 @@ mod minheap_tests {
         assert_eq!(v.peek_id_data(3),Some(50));
         assert_eq!(v.peek_id_data(4),Some(10));
         assert_eq!(v.peek_id_data(5),Some(18));
-        assert_eq!(v.get_min(),10);
+        assert_eq!(v.get_min(),Some(10));
         assert_eq!(v.peek_id_data(4),None);
         assert_eq!(v.peek_id_data(1),Some(61));
         assert_eq!(v.peek_id_data(2),Some(60));
         assert_eq!(v.peek_id_data(5),Some(18));
         assert_eq!(v.peek_id_data(6),Some(40));
-        assert_eq!(v.get_min(),18);
+        assert_eq!(v.get_min(),Some(18));
         assert_eq!(v.peek_id_data(1),Some(61));
         assert_eq!(v.peek_id_data(2),Some(60));
         assert_eq!(v.peek_id_data(3),Some(50));
