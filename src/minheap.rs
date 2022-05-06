@@ -6,6 +6,7 @@ pub struct HeapDataItem<T> {
     data: Box<T>
 }
 
+#[derive(Debug,Clone)]
 pub struct MinHeap<T> {
     pub heap_contents:  Vec::<HeapDataItem<T>>,
     pub index_by_id:   HashMap::<u32,usize>,
@@ -29,14 +30,14 @@ impl<T: std::cmp::PartialOrd+std::fmt::Debug> MinHeap<T> {
         for _i in 0..vec.len() {
             let item = vec.remove(0);
             let new_item = HeapDataItem {id: next_id, data: item};
-            println!("Adding {:?}",new_item);
+            //println!("Adding {:?}",new_item);
             new_heapvec.push(new_item);
             next_id += 1
         }
             
         self.heap_contents = new_heapvec;
-        println!("After set Contents {:?}",self.heap_contents);
-        println!("After set Index {:?}",self.index_by_id);
+        //println!("After set Contents {:?}",self.heap_contents);
+        //println!("After set Index {:?}",self.index_by_id);
     }
     
 
@@ -50,8 +51,8 @@ impl<T: std::cmp::PartialOrd+std::fmt::Debug> MinHeap<T> {
         self.index_by_id.insert(item_id,self.heap_contents.len()-1);
         // fix up the heap
         self.heapify_up(self.heap_contents.len()-1);
-        println!("After insert {:?}",self.heap_contents);
-        println!("After insert Index {:?}",self.index_by_id);
+        //println!("After insert {:?}",self.heap_contents);
+        //println!("After insert Index {:?}",self.index_by_id);
     }
 
     pub fn delete(&mut self, index : usize) {
@@ -79,7 +80,7 @@ impl<T: std::cmp::PartialOrd+std::fmt::Debug> MinHeap<T> {
         
         if let Some(index) = self.index_by_id.get(&id) {
             let item = self.heap_contents.get(*index).clone();
-            println!("get id data id {} data {:?} ",id,item);
+            //println!("get id data id {} data {:?} ",id,item);
             let x = item.unwrap().data.clone();
             Some(*x)
         }
@@ -111,7 +112,7 @@ impl<T: std::cmp::PartialOrd+std::fmt::Debug> MinHeap<T> {
             }
 
         }
-        println!("After update {:?}",self.heap_contents);
+        //println!("After update {:?}",self.heap_contents);
         
     }
 
@@ -122,12 +123,12 @@ impl<T: std::cmp::PartialOrd+std::fmt::Debug> MinHeap<T> {
             let right = self.get_right_child_index(x);
             let left_valid = left.is_none() || *self.heap_contents[left.unwrap()].data >= *self.heap_contents[x].data;
             let right_valid = right.is_none() || *self.heap_contents[right.unwrap()].data >= *self.heap_contents[x].data;
-            println!("Item {} -> left: {:?} right:  {:?} valid: {} {}",x,left,right,left_valid,left_valid);
+            //println!("Item {} -> left: {:?} right:  {:?} valid: {} {}",x,left,right,left_valid,left_valid);
             if !left_valid {
-                    println!("Left invalid")
+                    //println!("Left invalid")
             }
             if !right_valid {
-                    println!("Right invalid")
+                    //println!("Right invalid")
             }
             if !left_valid || !right_valid {
                 println!("INVALID heap");
@@ -147,7 +148,7 @@ impl<T: std::cmp::PartialOrd+std::fmt::Debug> MinHeap<T> {
             self.index_by_id.remove(&retval.id);
             // fix up the heap
             self.heapify_down(0);
-            println!("After get_min {:?}",self.heap_contents);
+            //println!("After get_min {:?}",self.heap_contents);
             Some(*retval.data)
         }
         else {
@@ -164,7 +165,7 @@ impl<T: std::cmp::PartialOrd+std::fmt::Debug> MinHeap<T> {
             self.index_by_id.remove(&retval.id);
             // fix up the heap
             self.heapify_down(0);
-            println!("After get_min {:?}",self.heap_contents);
+            //println!("After get_min {:?}",self.heap_contents);
             Some((retval.id,*retval.data))
         }
         else {
