@@ -67,9 +67,9 @@ mod tests {
         v.insert(40,Person { name: "Jordana".to_string(), age:10,  rank: 3});
         v.insert(50,Person { name: "Gizmo".to_string(), age:18,  rank:4 });
         assert!(v.validate_heap());
-        assert_eq!(v.get_min().age,Some(10));
-        assert_eq!(v.get_min().age,Some(18));
-        assert_eq!(v.get_min().age,Some(50));
+        assert_eq!(v.get_min().unwrap().age,10);
+        assert_eq!(v.get_min().unwrap().age,18);
+        assert_eq!(v.get_min().unwrap().age,50);
 
     }
 
