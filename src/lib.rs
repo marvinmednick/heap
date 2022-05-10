@@ -323,7 +323,7 @@ impl<T: std::cmp::PartialOrd+std::fmt::Debug> MinHeap<T> {
 
 #[cfg(test)]
 mod minheap_tests {
-    use crate::minheap::MinHeap;
+    use crate::MinHeap;
 
     fn setup_basic() -> MinHeap<u32> {
 
@@ -360,7 +360,7 @@ mod minheap_tests {
 
     #[test]
     fn test2() {
-        use crate::minheap::MinHeap;
+        use crate::MinHeap;
         //#[derive(Debug,PartialOrd,PartialEq)]
         #[derive(Debug)]
         struct Person {
@@ -398,7 +398,7 @@ mod minheap_tests {
 
     #[test]
     fn test3() {
-        use crate::minheap::MinHeap;
+        use crate::MinHeap;
 
         let mut v = MinHeap::<u32>::new();
         v.insert(1,10);
@@ -427,7 +427,7 @@ mod minheap_tests {
     #[test]
     fn test_heap_validate() {
 
-        use crate::minheap::MinHeap;
+        use crate::MinHeap;
         let mut v = MinHeap::<u32>::new();
         v.set(vec!(Box::new(1),Box::new(3),Box::new(2)));
         assert!(v.validate_heap());
@@ -451,7 +451,7 @@ mod minheap_tests {
 
     #[test]
     fn test_ids() {
-        use crate::minheap::MinHeap;
+        use crate::MinHeap;
 
         let mut v = MinHeap::<u32>::new();
         v.insert(1,61);

@@ -1,5 +1,5 @@
 [package]
-name = "help"
+name = "minheap"
 version = "0.1.0"
 edition = "2021"
 
