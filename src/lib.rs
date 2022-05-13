@@ -78,16 +78,32 @@ impl<T: std::cmp::PartialOrd+std::fmt::Debug> MinHeap<T> {
         self.index_by_id.get(&id)
     }
 
+    pub fn peek_data(&self,index:usize) -> Option<T>
+    where T: Clone
+    {
+        if index < self.heap_contents.len() {
+            let item = self.heap_contents.get(index); 
+            let x = item.unwrap().data.clone();
+            Some(*x)
+        }
+        else {
+            None
+        }
+    }
+
+    pub fn peek_min(&self) -> Option<T> 
+    where T: Clone
+    {
+        self.peek_data(0)
+    }
+
     pub fn peek_id_data(&self,id:u32) -> Option<T>
     where T: Clone
     {
         
 //        println!("Peeking at {}   - heap: {:?} len: {}",id,self, self.heap_contents.len());
         if let Some(index) = self.index_by_id.get(&id) {
-            let item = self.heap_contents.get(*index).clone();
-//            println!("get id data id {} data {:?} index: {}",id,item,index);
-            let x = item.unwrap().data.clone();
-            Some(*x)
+            self.peek_data(*index)
         }
         else {
             None
@@ -458,11 +474,16 @@ mod minheap_tests {
         assert_eq!(v.peek_id_data(1),Some(61));
         assert_eq!(v.get_id_index(1),Some(&0));
         v.insert(2,60);
+        // 60 should be on top, and 61 pushed to the 2nd slot
+        assert_eq!(v.peek_data(1),Some(61));
         assert_eq!(v.get_id_index(1),Some(&1));
         assert_eq!(v.get_id_index(2),Some(&0));
         assert_eq!(Some(61),v.peek_id_data(1));
         assert_eq!(v.peek_id_data(2),Some(60));
         v.insert(3,50);
+        // 50 will be on top, 60 will be pushed to the 3rd slot
+        assert_eq!(v.peek_data(1),Some(61));
+        assert_eq!(v.peek_data(2),Some(60));
         assert_eq!(v.get_id_index(3),Some(&0));
         v.insert(4,10);
         assert_eq!(v.get_id_index(4),Some(&0));
@@ -474,7 +495,9 @@ mod minheap_tests {
         assert_eq!(v.peek_id_data(3),Some(50));
         assert_eq!(v.peek_id_data(4),Some(10));
         assert_eq!(v.peek_id_data(5),Some(18));
+        assert_eq!(v.peek_min(),Some(10));
         assert_eq!(v.get_min(),Some(10));
+        assert_eq!(v.peek_min(),Some(18));
         assert_eq!(v.peek_id_data(4),None);
         assert_eq!(v.peek_id_data(1),Some(61));
         assert_eq!(v.peek_id_data(2),Some(60));
