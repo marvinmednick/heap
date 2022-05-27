@@ -64,7 +64,8 @@ impl<T: std::cmp::PartialOrd+std::fmt::Debug> MinHeap<T> {
             // remove the element and put the last one in its place (which will be larger)
             self.heap_contents.swap_remove(index);
             // update the index by id map for the last entry that was swapped
-            self.index_by_id.insert(last_entry_id,0);
+            // which is now moved to the index spot
+            self.index_by_id.insert(last_entry_id,index);
             // fix up the heap
             self.heapify_down(index);
             // remove the id/index entry from the map
@@ -72,6 +73,10 @@ impl<T: std::cmp::PartialOrd+std::fmt::Debug> MinHeap<T> {
 
         }
 
+    }
+
+    pub fn len(&self) -> usize {
+        self.heap_contents.len()
     }
 
     pub fn get_id_index(&self,id:u32) -> Option<&usize>{
@@ -101,7 +106,7 @@ impl<T: std::cmp::PartialOrd+std::fmt::Debug> MinHeap<T> {
     where T: Clone
     {
         
-//        println!("Peeking at {}   - heap: {:?} len: {}",id,self, self.heap_contents.len());
+        //println!("Peeking at {}   - heap: {:?} len: {}",id,self, self.heap_contents.len());
         if let Some(index) = self.index_by_id.get(&id) {
             self.peek_data(*index)
         }
@@ -120,15 +125,18 @@ impl<T: std::cmp::PartialOrd+std::fmt::Debug> MinHeap<T> {
         if self.valid_index(index) {
 
             if new_value < *self.heap_contents[index].data {
+                    //println!("New Less");
                     self.replace(index,new_value);
                     self.heapify_up(index);
             }
             else if new_value > *self.heap_contents[index].data {
+                    //println!("New Greater");
                     self.replace(index,new_value);
                     self.heapify_down(index);
             } 
             // values are be equal, so no heap adjust required
             else {
+                    //println!("New Equal");
                     self.replace(index,new_value);
             }
 
@@ -158,6 +166,18 @@ impl<T: std::cmp::PartialOrd+std::fmt::Debug> MinHeap<T> {
         }
         println!("Valid heap");
         return true;
+    }
+
+    pub fn validate_index(&self) -> bool {
+
+        for x in 0..self.heap_contents.len() {
+            let cur_id = self.heap_contents[x].id.clone();
+            if self.get_id_index(cur_id) != Some(&x) {
+                return false;
+            }
+        }
+        true
+
     }
 
     pub fn get_min(&mut self) -> Option<T> {
@@ -242,7 +262,7 @@ impl<T: std::cmp::PartialOrd+std::fmt::Debug> MinHeap<T> {
             return_value
         }
         else {
-            println!("Comparing {} {} - {}",a,b,false);
+          //  println!("Comparing {} {} - {}",a,b,false);
             false
         }
     }
@@ -359,6 +379,7 @@ mod minheap_tests {
 
         let v = setup_basic();
         assert!(v.validate_heap());
+        assert!(v.validate_index());
     } 
 
     #[test]
@@ -367,10 +388,12 @@ mod minheap_tests {
         println!("Before Delete {:?}",v.heap_contents);
         v.delete(1);
         assert!(v.validate_heap());
+        assert!(v.validate_index());
         println!("After Delete 1 {:?}",v.heap_contents);
         v.delete(2);
         println!("After Delete 2 {:?}",v.heap_contents);
         assert!(v.validate_heap());
+        assert!(v.validate_index());
 
     }
 
@@ -406,6 +429,7 @@ mod minheap_tests {
         v.insert(4,Person { name: "Jordana".to_string(), age:10,  rank: 3});
         v.insert(5,Person { name: "Gizmo".to_string(), age:18,  rank:4 });
         assert!(v.validate_heap());
+        assert!(v.validate_index());
         assert_eq!(v.get_min().unwrap().age,10);
         assert_eq!(v.get_min().unwrap().age,18);
         assert_eq!(v.get_min().unwrap().age,50);
@@ -426,6 +450,7 @@ mod minheap_tests {
         v.update(1,2);
 
 
+        assert_eq!(v.len(),4);
         assert_eq!(v.get_min(),Some(1));
         assert_eq!(v.get_min(),Some(2));
         assert_eq!(v.get_min(),Some(3));
@@ -443,6 +468,7 @@ mod minheap_tests {
     #[test]
     fn test_heap_validate() {
 
+        // NOTE -- since heap is set directly from vectors, index is not valid
         use crate::MinHeap;
         let mut v = MinHeap::<u32>::new();
         v.set(vec!(Box::new(1),Box::new(3),Box::new(2)));
@@ -489,7 +515,9 @@ mod minheap_tests {
         assert_eq!(v.get_id_index(4),Some(&0));
         v.insert(5,18);
         v.insert(6,40);
+        assert_eq!(v.len(),6);
         assert!(v.validate_heap());
+        assert!(v.validate_index());
         assert_eq!(v.peek_id_data(1),Some(61));
         assert_eq!(v.peek_id_data(2),Some(60));
         assert_eq!(v.peek_id_data(3),Some(50));
@@ -511,6 +539,7 @@ mod minheap_tests {
         assert_eq!(v.peek_id_data(5),None);
         assert_eq!(v.get_id_index(6),Some(&0));
         assert!(v.validate_heap());
+        assert!(v.validate_index());
 
     } 
 
