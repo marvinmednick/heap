@@ -15,6 +15,7 @@ pub struct MinHeap<T> {
 
 impl<T: std::cmp::PartialOrd+std::fmt::Debug> MinHeap<T> {
 
+    /// creates a new minheap holding type T -- each item has an ID and data of type T
     pub fn new()  -> MinHeap<T> {
         MinHeap { 
             heap_contents : Vec::<HeapDataItem<T>>::new(), 
@@ -79,10 +80,12 @@ impl<T: std::cmp::PartialOrd+std::fmt::Debug> MinHeap<T> {
         self.heap_contents.len()
     }
 
+    /// returns the index into the vector for the item with ID of 'id'
     pub fn get_id_index(&self,id:u32) -> Option<&usize>{
         self.index_by_id.get(&id)
     }
 
+    /// Return a copy of the data at index without removing it from the heap
     pub fn peek_data(&self,index:usize) -> Option<T>
     where T: Clone
     {
@@ -96,12 +99,14 @@ impl<T: std::cmp::PartialOrd+std::fmt::Debug> MinHeap<T> {
         }
     }
 
+    /// Return of copy of the data from the item at the top of the heap without removing it
     pub fn peek_min(&self) -> Option<T> 
     where T: Clone
     {
         self.peek_data(0)
     }
 
+    /// Return a copy of the data with the speccified id without removing it from the heap
     pub fn peek_id_data(&self,id:u32) -> Option<T>
     where T: Clone
     {
@@ -121,6 +126,12 @@ impl<T: std::cmp::PartialOrd+std::fmt::Debug> MinHeap<T> {
             self.heap_contents[index] = new_entry;
     }
 
+    pub fn update_by_id(&mut self, id: u32, new_value: T) {
+        let vertex_index = self.get_id_index(id).unwrap().clone();
+        self.update(vertex_index,new_value);
+
+
+    }
     pub fn update(&mut self, index: usize, new_value: T) {
         if self.valid_index(index) {
 
@@ -465,6 +476,15 @@ mod minheap_tests {
         assert_eq!(v.get_min_entry(),Some((5,18)));
     }
 
+    #[test]
+    fn test_update_id() {
+        let mut v = setup_basic();
+        assert_eq!(v.peek_id_data(4),Some(3));
+        v.update_by_id(4,10);
+        assert_eq!(v.peek_id_data(4),Some(10));
+    }
+
+    #[test]
     #[test]
     fn test_heap_validate() {
 
