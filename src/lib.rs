@@ -2,14 +2,14 @@ use std::collections::HashMap;
 
 #[derive(Debug, Clone)]
 pub struct HeapDataItem<T> {
-    id:    u32,
+    id:    usize,
     data: Box<T>
 }
 
 #[derive(Debug,Clone)]
 pub struct MinHeap<T> {
     pub heap_contents:  Vec::<HeapDataItem<T>>,
-    pub index_by_id:   HashMap::<u32,usize>,
+    pub index_by_id:   HashMap::<usize,usize>,
 }
 
 
@@ -19,7 +19,7 @@ impl<T: std::cmp::PartialOrd+std::fmt::Debug> MinHeap<T> {
     pub fn new()  -> MinHeap<T> {
         MinHeap { 
             heap_contents : Vec::<HeapDataItem<T>>::new(), 
-            index_by_id:  HashMap::<u32,usize>::new(),
+            index_by_id:  HashMap::<usize,usize>::new(),
         }
 
     }
@@ -42,7 +42,7 @@ impl<T: std::cmp::PartialOrd+std::fmt::Debug> MinHeap<T> {
     }
     
 
-    pub fn insert(&mut self, item_id: u32, item: T ) {
+    pub fn insert(&mut self, item_id: usize, item: T ) {
  //       println!("Inserting {:?} ****** ",item);
         let entry = HeapDataItem { id: item_id, data: Box::<T>::new(item)};
         // add the entry
@@ -81,7 +81,7 @@ impl<T: std::cmp::PartialOrd+std::fmt::Debug> MinHeap<T> {
     }
 
     /// returns the index into the vector for the item with ID of 'id'
-    pub fn get_id_index(&self,id:u32) -> Option<&usize>{
+    pub fn get_id_index(&self,id:usize) -> Option<&usize>{
         self.index_by_id.get(&id)
     }
 
@@ -107,7 +107,7 @@ impl<T: std::cmp::PartialOrd+std::fmt::Debug> MinHeap<T> {
     }
 
     /// Return a copy of the data with the speccified id without removing it from the heap
-    pub fn peek_id_data(&self,id:u32) -> Option<T>
+    pub fn peek_id_data(&self,id:usize) -> Option<T>
     where T: Clone
     {
         
@@ -126,7 +126,7 @@ impl<T: std::cmp::PartialOrd+std::fmt::Debug> MinHeap<T> {
             self.heap_contents[index] = new_entry;
     }
 
-    pub fn update_by_id(&mut self, id: u32, new_value: T) {
+    pub fn update_by_id(&mut self, id: usize, new_value: T) {
         let vertex_index = self.get_id_index(id).unwrap().clone();
         self.update(vertex_index,new_value);
 
@@ -202,7 +202,7 @@ impl<T: std::cmp::PartialOrd+std::fmt::Debug> MinHeap<T> {
         }
     }
 
-    pub fn get_min_entry (&mut self) -> Option<(u32,T)> {
+    pub fn get_min_entry (&mut self) -> Option<(usize,T)> {
 
         let heap_size = self.heap_contents.len();
         if self.heap_contents.len() > 0 {
@@ -444,6 +444,10 @@ mod minheap_tests {
         assert_eq!(v.get_min().unwrap().age,10);
         assert_eq!(v.get_min().unwrap().age,18);
         assert_eq!(v.get_min().unwrap().age,50);
+        let x = v.get_min().unwrap();
+        assert_eq!(x.age,60);
+        assert_eq!(x.rank,2);
+        assert_eq!(x.name,"Marvin");
 
     }
 
@@ -479,12 +483,11 @@ mod minheap_tests {
     #[test]
     fn test_update_id() {
         let mut v = setup_basic();
-        assert_eq!(v.peek_id_data(4),Some(3));
-        v.update_by_id(4,10);
         assert_eq!(v.peek_id_data(4),Some(10));
+        v.update_by_id(4,33);
+        assert_eq!(v.peek_id_data(4),Some(33));
     }
 
-    #[test]
     #[test]
     fn test_heap_validate() {
 
